@@ -1,235 +1,470 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <meta charset="utf-8">
-  
-  
-  <title>Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="https://github.io/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="en_US">
-<meta property="article:author" content="John Doe">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/kamrad_testing.github.io/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/kamrad_testing.github.io/favicon.png">
-  
-  
-  
-<link rel="stylesheet" href="/kamrad_testing.github.io/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прости меня...</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-  
-    
-<link rel="stylesheet" href="/kamrad_testing.github.io/fancybox/jquery.fancybox.min.css">
+        body, html {
+            height: 100%;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #333;
+        }
 
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-<meta name="generator" content="Hexo 8.1.2"></head>
+        /* Сердечки на фоне */
+        .heart-bg {
+            position: fixed;
+            top: -10vh;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 24px;
+            animation: fall linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
 
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        /* Конверт */
+        #envelope-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            background: rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+            transition: opacity 1s;
+        }
+        
+        .envelope {
+            width: 300px;
+            height: 200px;
+            background: #ffb3c6;
+            position: relative;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+        }
+
+        .envelope:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .envelope::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-top: 100px solid #ff99ac;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            z-index: 3;
+            transform-origin: top;
+            transition: transform 1s;
+        }
+
+        .envelope.open::before {
+            transform: rotateX(180deg);
+        }
+
+        .envelope-text {
+            position: absolute;
+            z-index: 4;
+            font-family: 'Caveat', cursive;
+            font-size: 32px;
+            color: #fff;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Основной контент (скрыт по умолчанию) */
+        #main-content {
+            display: none;
+            opacity: 0;
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: opacity 1.5s ease-in;
+        }
+
+        h1 {
+            font-family: 'Caveat', cursive;
+            font-size: 48px;
+            color: #d63384;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .typewriter-text {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            min-height: 200px; /* Чтобы не прыгало при наборе */
+        }
+
+        /* Галерея Polaroid */
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            opacity: 0; /* Появится позже */
+            transition: opacity 2s;
+        }
+
+        .polaroid {
+            background: #fff;
+            padding: 10px 10px 20px 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            border-radius: 4px;
+            width: calc(33.333% - 20px);
+            min-width: 200px;
+            transform: rotate(-3deg);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .polaroid:nth-child(even) {
+            transform: rotate(4deg);
+        }
+        
+        .polaroid:nth-child(3n) {
+            transform: rotate(-1deg);
+        }
+
+        .polaroid:hover {
+            transform: scale(1.1) rotate(0deg);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 5;
+        }
+
+        .polaroid img {
+            width: 100%;
+            height: auto;
+            border-radius: 2px;
+        }
+
+        .polaroid-caption {
+            font-family: 'Caveat', cursive;
+            text-align: center;
+            font-size: 22px;
+            margin-top: 10px;
+            color: #555;
+        }
+
+        /* Кнопки */
+        .actions {
+            margin-top: 50px;
+            text-align: center;
+            position: relative;
+            min-height: 80px;
+            opacity: 0;
+            transition: opacity 2s;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 18px;
+            font-family: 'Montserrat', sans-serif;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-yes {
+            background: #ff6b81;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 129, 0.4);
+        }
+
+        .btn-yes:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 107, 129, 0.6);
+        }
+
+        .btn-no {
+            background: #e0e0e0;
+            color: #555;
+            position: relative; /* Для убегания */
+        }
+
+        /* Экран успеха */
+        #success-screen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        #success-screen h2 {
+            font-family: 'Caveat', cursive;
+            font-size: 64px;
+            color: #ff4757;
+            margin-bottom: 20px;
+        }
+        
+        #success-screen p {
+            font-size: 24px;
+            color: #333;
+        }
+
+        @media (max-width: 600px) {
+            #main-content {
+                margin: 20px;
+                padding: 20px;
+            }
+            .polaroid {
+                width: 45%;
+            }
+            h1 { font-size: 36px; }
+        }
+    </style>
+</head>
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/kamrad_testing.github.io/" id="logo">Hexo</a>
-      </h1>
-      
+
+    <!-- Музыка -->
+    <audio id="bg-music" loop>
+        <source src="images/bg_music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Фон с сердечками -->
+    <div id="hearts-container"></div>
+
+    <!-- Конверт -->
+    <div id="envelope-container">
+        <div class="envelope" onclick="openEnvelope()">
+            <div class="envelope-text">Для тебя ❤️</div>
+        </div>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+
+    <!-- Основной контент -->
+    <div id="main-content">
+        <h1>Моя родная, прости меня...</h1>
         
-          <a class="main-nav-link" href="/kamrad_testing.github.io/">Home</a>
-        
-          <a class="main-nav-link" href="/kamrad_testing.github.io/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-        
-          <a class="nav-icon" href="/kamrad_testing.github.io/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
-        
-        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://github.io"></form>
-      </div>
+        <div class="typewriter-text" id="text-container"></div>
+
+        <div class="gallery" id="gallery">
+            <div class="polaroid">
+                <img src="images/PXL_3.jpg" alt="Мы">
+                <div class="polaroid-caption">Самая лучшая пара</div>
+            </div>
+            <div class="polaroid">
+                <img src="images/PXL_1.jpg" alt="Мы">
+                <div class="polaroid-caption">Ты - моя судьба</div>
+            </div>
+            <div class="polaroid">
+                <img src="images/IMG_1835.jpg" alt="Мы">
+                <div class="polaroid-caption">Люблю тебя</div>
+            </div>
+            <div class="polaroid">
+                <img src="images/IMG_1909.jpg" alt="Мы">
+                <div class="polaroid-caption">Наши моменты</div>
+            </div>
+            <div class="polaroid">
+                <img src="images/PXL_2.jpg" alt="Мы">
+                <div class="polaroid-caption">Моя радость</div>
+            </div>
+            <div class="polaroid">
+                <img src="images/mem1.jpg" alt="Мы">
+                <div class="polaroid-caption">Вместе мы сможем всё</div>
+            </div>
+        </div>
+
+        <div class="actions" id="actions">
+            <p style="font-family: 'Caveat', cursive; font-size: 32px; margin-bottom: 20px; color: #d63384;">Прощаешь?</p>
+            <button class="btn btn-yes" onclick="sayYes()">Да, прощаю ❤️</button>
+            <button class="btn btn-no" id="btn-no">Нет</button>
+        </div>
     </div>
-  </div>
-</header>
 
-      <div class="outer">
-        <section id="main">
-  
-    <article id="false-Im-sorry" class="h-entry article article-type-false" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/kamrad_testing.github.io/2026/08/07/Im-sorry/" class="article-date">
-  <time class="dt-published" datetime="2026-08-07T09:00:00.000Z" itemprop="datePublished">2026-08-07</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/kamrad_testing.github.io/2026/08/07/Im-sorry/">Прости меня, любимая</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <div class="apology-container" style="max-width: 600px; margin: 40px auto; padding: 40px; background: #fff0f3; border-radius: 16px; text-align: center; font-family: sans-serif; box-shadow: 0 10px 30px rgba(255,105,180,0.15);">
-  <h2 style="color: #d63384; margin-bottom: 20px;">Моя родная, прости меня...</h2>
-  
-  <p style="color: #495057; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
-    Я пишу это здесь, потому что мои слова сейчас важны, а твоя улыбка — это самое ценное, что у меня есть. Я знаю, что совершил глупость, и мне ужасно больно от мыслей, что я заставил тебя грустить.
-  </p>
-
-  <p style="color: #495057; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
-    Мне просто нужно было немного побыть одному и перезагрузиться, но я ушел в себя слишком резко и глупо тебя обидел. Мне очень жаль, что моё желание побыть наедине с мыслями принесло тебе боль. Ты ни в чем не виновата.
-  </p>
-  
-  <p style="color: #495057; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
-    Мы ведь с тобой — <b>самая лучшая пара</b>, и то, что есть между нами, слишком ценно и уникально. Мы идеально дополняем друг друга, и никакие глупые недопонимания не должны вставать на нашем пути.
-  </p>
-  
-  <p style="color: #495057; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
-    Прости меня, пожалуйста. Давай оставим эту часть позади и будем двигаться дальше, ведь вместе мы можем всё. Я сделаю всё возможное, чтобы ты снова улыбалась каждый день!
-  </p>
-
-  <div style="margin: 20px 0;">
-    <img src="./../../../../images/PXL_20260806_215325451.jpg" alt="Мы лучшая пара" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-  </div>
-
-  <p style="color: #6c757d; font-size: 15px; font-style: italic; margin-top: 20px; font-weight: bold;">
-    Ты — моя судьба, и я невероятно счастлив, что мы вместе. ❤️
-  </p>
-</div>
-<style>
-  /* Скрываем стандартную шапку, подвал и боковую панель темы */
-  header, footer, aside, .sidebar, #header, #footer, #sidebar, .outer aside { 
-    display: none !important; 
-  }
-  /* Центрируем основной блок на чистой странице */
-  main, #main, .article { 
-    margin: 0 auto !important; 
-    float: none !important; 
-    width: 100% !important; 
-  }
-</style>
-
-
-
-      
+    <!-- Экран успеха -->
+    <div id="success-screen">
+        <h2>Ура! Я люблю тебя! ❤️</h2>
+        <p>Спасибо, что даешь мне шанс. Я сделаю всё, чтобы ты улыбалась.</p>
     </div>
-    <footer class="article-footer">
-      <a data-url="https://github.io/2026/08/07/Im-sorry/" data-id="cuidtdErK9Nxj7qmjZ4DfvHSX" data-title="Прости меня, любимая" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
 
+    <script>
+        // Генерация падающих сердечек
+        function createHearts() {
+            const container = document.getElementById('hearts-container');
+            const hearts = ['❤️', '💖', '✨', '💕'];
+            for(let i=0; i<30; i++) {
+                let div = document.createElement('div');
+                div.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                div.className = 'heart-bg';
+                div.style.left = Math.random() * 100 + 'vw';
+                div.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                div.style.animationDelay = (Math.random() * 5) + 's';
+                div.style.opacity = Math.random() * 0.5 + 0.2;
+                div.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                container.appendChild(div);
+            }
+        }
+        createHearts();
 
+        // Открытие конверта и запуск музыки
+        function openEnvelope() {
+            const envelope = document.querySelector('.envelope');
+            const container = document.getElementById('envelope-container');
+            const music = document.getElementById('bg-music');
+            
+            // Пытаемся включить музыку
+            music.volume = 0.4;
+            music.play().catch(e => console.log("Автовоспроизведение аудио заблокировано"));
 
-  
+            envelope.classList.add('open');
+            setTimeout(() => {
+                container.style.opacity = '0';
+                setTimeout(() => {
+                    container.style.display = 'none';
+                    showMainContent();
+                }, 1000);
+            }, 800);
+        }
 
+        // Появление основного контента и печатная машинка
+        function showMainContent() {
+            const main = document.getElementById('main-content');
+            main.style.display = 'block';
+            setTimeout(() => {
+                main.style.opacity = '1';
+                typeWriter();
+            }, 100);
+        }
 
-</section>
+        const textToType = [
+            "Я пишу это здесь, потому что мои слова сейчас важны, а твоя улыбка — это самое ценное, что у меня есть.",
+            "Я знаю, что совершил глупость, и мне ужасно больно от мыслей, что я заставил тебя грустить.",
+            "Мне просто нужно было немного побыть одному и перезагрузиться, но я ушел в себя слишком резко и глупо тебя обидел.",
+            "Мне очень жаль, что моё желание побыть наедине с мыслями принесло тебе боль. Ты ни в чем не виновата.",
+            "Мы ведь с тобой — самая лучшая пара, и то, что есть между нами, слишком ценно и уникально.",
+            "Мы идеально дополняем друг друга, и никакие глупые недопонимания не должны вставать на нашем пути.",
+            "Прости меня, пожалуйста. Давай оставим эту часть позади и будем двигаться дальше, ведь вместе мы можем всё.",
+            "Я сделаю всё возможное, чтобы ты снова улыбалась каждый день! Ты — моя судьба, и я невероятно счастлив, что мы вместе. ❤️"
+        ];
+
+        let paragraphIndex = 0;
+        let charIndex = 0;
+        const speed = 30; // Скорость печати
+        const textContainer = document.getElementById('text-container');
+
+        function typeWriter() {
+            if (paragraphIndex < textToType.length) {
+                if (charIndex === 0) {
+                    textContainer.innerHTML += '<p style="margin-bottom: 15px;"></p>';
+                }
+                
+                const currentP = textContainer.lastElementChild;
+                const text = textToType[paragraphIndex];
+                
+                if (charIndex < text.length) {
+                    currentP.innerHTML += text.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(typeWriter, speed);
+                } else {
+                    paragraphIndex++;
+                    charIndex = 0;
+                    setTimeout(typeWriter, speed * 10);
+                }
+            } else {
+                // Когда текст допечатался, показываем галерею и кнопки
+                document.getElementById('gallery').style.opacity = '1';
+                setTimeout(() => {
+                    document.getElementById('actions').style.opacity = '1';
+                }, 1000);
+            }
+        }
+
+        // Убегающая кнопка "Нет"
+        const btnNo = document.getElementById('btn-no');
         
-          <aside id="sidebar">
-  
-    
+        function moveBtn() {
+            const x = Math.random() * (window.innerWidth - btnNo.offsetWidth - 100) - (window.innerWidth/2) + 50;
+            const y = Math.random() * (window.innerHeight - btnNo.offsetHeight - 100) - (window.innerHeight/2) + 50;
+            
+            // Ограничиваем вылет за пределы
+            btnNo.style.transform = `translate(${x}px, ${y}px)`;
+        }
 
-  
-    
+        btnNo.addEventListener('mouseover', moveBtn);
+        btnNo.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // чтобы не кликалось на мобилках
+            moveBtn();
+        });
 
-  
-    
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/kamrad_testing.github.io/archives/2026/08/">August 2026</a></li></ul>
-    </div>
-  </div>
+        // Кнопка "Да"
+        function sayYes() {
+            // Фейерверк
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
 
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ff9a9e', '#fecfef', '#d63384']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ff9a9e', '#fecfef', '#d63384']
+                });
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/kamrad_testing.github.io/2026/08/07/Im-sorry/">Прости меня, любимая</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
 
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2026 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/kamrad_testing.github.io/" class="mobile-nav-link">Home</a>
-  
-    <a href="/kamrad_testing.github.io/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/kamrad_testing.github.io/js/jquery-3.6.4.min.js"></script>
-
-
-
-  
-<script src="/kamrad_testing.github.io/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/kamrad_testing.github.io/js/script.js"></script>
-
-
-
-
-
-  </div>
+            // Показываем экран успеха
+            setTimeout(() => {
+                const screen = document.getElementById('success-screen');
+                screen.style.display = 'flex';
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
